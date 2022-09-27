@@ -12,7 +12,7 @@ class CategoryType(DjangoObjectType):
 class QuizType(DjangoObjectType):
   class Meta:
     model = Quiz
-    fields = ('id', 'title', 'category', 'quiz')
+    fields = ('id', 'title', 'category', 'date_created')
 
 class QuestionType(DjangoObjectType):
   class Meta:
@@ -25,8 +25,15 @@ class AnswerType(DjangoObjectType):
     fields = ('question', 'answer_text')
 
 class Query(graphene.ObjectType):
-  quiz = graphene.String()
-  def resolve_quiz():
-    return f"This is the first question"
+  all_questions = graphene.Field(QuestionType, id=graphene.Int())
+  all_answers = graphene.List(AnswerType, id=graphene.Int())
+
+  def resolve_all_questions(root, info, id):
+    return Question.objects.get(pk=id)
+  
+  def resolve_all_answers(root, info, id):
+    return Answer.objects.filter(question=id)
+
+  
 
 schema = graphene.Schema(query=Query)
